@@ -1,0 +1,11 @@
+.*.swp
+.#*
+*#
+*~
+*.root
+*.log
+*.d
+*.pcm
+*.so
+*.cxx*
+*.DS_Store
