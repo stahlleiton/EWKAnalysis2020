@@ -299,6 +299,17 @@ class RecoReader : public TreeReaderBase
     const auto cent = getCentrality();
     int evtID = 0;
     if (evtID==0 && candidates.size()>1 && std::next(candidates.begin(), 1)->p4().Pt()>15) { evtID = 1; } // Drell-Yan
+    for (size_t i1=0; i1<candidates.size(); i1++) {
+      for (size_t i2=i1+1; i2<candidates.size(); i2++) {
+	const auto& cand1 = candidates[i1];
+	const auto& cand2 = candidates[i2];
+	if (cand1.charge()==cand.2.charge()) continue;
+	const auto mass = (cand1.p4()+cand2.p4()).M();
+	if (mass>70. && mass<110.) { evtID = 3; break; }
+      }
+      if (evtID==3) break;
+    }
+
     // add information
     candidate.setMET(metM);
     candidate.setCent(cent);
