@@ -236,7 +236,7 @@ class RecoReader : public TreeReaderBase
     initRho();
   };
 
-  typedef std::map<std::string, TVector2> metMap;
+  typedef std::map<std::string, TLorentzVector> metMap;
   
   class Candidate
   {
@@ -346,8 +346,7 @@ class RecoReader : public TreeReaderBase
       for (const auto& o : objF_) { checkValue(o.second.get()); }
     }
     else if (tree=="hiFJRhoAnalyzerFinerBins") {
-      for (const auto& o : objI_) { checkValue(o.second.get()); }
-      for (const auto& o : objF_) { checkValue(o.second.get()); }
+      for (const auto& o : objD_) { checkValue(o.second.get()); }
     } 
   };
 
@@ -372,7 +371,7 @@ class RecoReader : public TreeReaderBase
     const auto logRho0 = std::log(rho0);
     const double f = (a*rho0*rho0 + b*rho0 + c) - (d*logRho0*logRho0 + e*logRho0);
     const auto logRho = std::log(rho);
-    return (rho < rho0 ? a*rho*rho + b*rho + c : d*logRho*logRho + e*logRho + f);
+    return (rho <= rho0 ? a*rho*rho + b*rho + c : d*logRho*logRho + e*logRho + f);
   };
 
   double getUE(const double& rho, const std::string& type, const double& coneSize=0.2) const
@@ -433,14 +432,14 @@ class RecoReader : public TreeReaderBase
     // get MET
     metMap metM;
     const std::vector<std::string> catList({"Full", "Chg", "NoHF", "ChgPtMin4"});
-    for (const auto& cat : catList) { metM[cat] = TVector2(0., 0.); }
+    for (const auto& cat : catList) { metM[cat] = TLorentzVector(0., 0., 0., 0.); }
     for (size_t iPF=0; iPF<objF_.at("pfPt")->Get()->size(); iPF++) {
       const auto& pfId  = objI_.at("pfId")->Get()->at(iPF);
       const auto& pfPt  = objF_.at("pfPt" )->Get()->at(iPF);
       const auto& pfEta = objF_.at("pfEta")->Get()->at(iPF);
       const auto& pfPhi = objF_.at("pfPhi")->Get()->at(iPF);
       const auto& trkNHit = objF_.at("trkNHit")->Get()->at(iPF);
-      TVector2 vec; vec.SetMagPhi(pfPt, pfPhi);
+      TLorentzVector vec; vec.SetPtEtaPhiM(pfPt, 0.0, pfPhi, 0.0);
       for (const auto& cat : catList) {
 	auto& met = metM.at(cat);
 	if (cat=="Full") { met -= vec; }

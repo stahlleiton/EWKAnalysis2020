@@ -20,16 +20,14 @@ void skimTree(const std::string& type="muon")
     const auto& pTag = type;
     
     // define variables
-    double lepPt, lepEta, lepPhi, lepIso;
-    TVector2 met, metNoHF, metChg, metChgPtMin4;
+    double lepEta, lepIso;
+    TLorentzVector met, metNoHF, metChg, metChgPtMin4, lepP4T;
     int lepId, lepCharge, evtID, cent;
     // define tree
     TTree* t = new TTree("AnaTree", "AnaTree");
     auto& tree = *t;
-    tree.Branch("lepId",&lepId,"lepId/i");
-    tree.Branch("lepPt",&lepPt,"lepPt/D");
+    tree.Branch("lepP4T",&lepP4T);
     tree.Branch("lepEta",&lepEta,"lepEta/D");
-    tree.Branch("lepPhi",&lepPhi,"lepPhi/D");
     tree.Branch("lepCharge",&lepCharge,"lepCharge/I");
     tree.Branch("lepIso",&lepIso,"lepIso/D");
     tree.Branch("met",&met);
@@ -74,10 +72,8 @@ void skimTree(const std::string& type="muon")
       // check if QCD event
       if (candidate.iso() >= (pTag=="muon" ? -0.060000 : 0.080000)) { candidate.setEvtID(2); }
       // fill tree
-      lepId = (pTag=="muon" ? 13 : 11);
-      lepPt = candidate.p4().Pt();
+      lepP4T.SetPtEtaPhiM(candidate.p4().Pt(), 0.0, candidate.p4().Phi(), candidate.p4().M());
       lepEta = candidate.p4().Eta();
-      lepPhi = candidate.p4().Phi();
       lepCharge = candidate.charge();
       lepIso = candidate.iso();
       met = candidate.met().at("Full");
